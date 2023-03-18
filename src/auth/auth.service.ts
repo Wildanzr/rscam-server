@@ -1,16 +1,31 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { AdminsService } from 'src/admins/admins.service';
 import { RegisterAdminDto } from 'src/admins/dto/register-admin.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { DictionaryMessage } from 'src/utils/config/dictionary-message.config';
 
 @Injectable()
 export class AuthService {
   @Inject(AdminsService)
   private readonly adminService: AdminsService;
+  @Inject(DictionaryMessage)
+  private readonly dictionaryMessage: DictionaryMessage;
 
   async registerAdmin(payload: RegisterAdminDto): Promise<string> {
-    return this.adminService.createAdmin(payload);
+    const id = await this.adminService.createAdmin(payload);
+
+    if (!id) {
+      throw new InternalServerErrorException(
+        this.dictionaryMessage.serverCrash,
+      );
+    }
+
+    return id;
   }
 
   create(createAuthDto: CreateAuthDto) {
