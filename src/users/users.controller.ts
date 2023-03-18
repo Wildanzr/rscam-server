@@ -16,7 +16,12 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto) {
+    const { username, email } = createUserDto;
+
+    // Check email and username is available
+    await this.usersService.checkUsernameAndEmail(username, email);
+
     return this.usersService.create(createUserDto);
   }
 

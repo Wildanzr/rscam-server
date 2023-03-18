@@ -1,5 +1,6 @@
 import { InjectRepository, Repository } from '@blendedbot/nest-couchdb';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import nano from 'nano';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -11,9 +12,45 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    console.log(createUserDto);
-    return 'This action adds a new user';
+  async checkUsernameAndEmail(
+    username: string,
+    email: string,
+  ): Promise<boolean> {
+    const user = await this.userRepository
+      .find({
+        selector: {
+          username,
+          email,
+        },
+      })
+      .then((res) => {
+        return res.docs[0];
+      });
+
+    if (user) {
+      throw new BadRequestException('Username or email is already taken');
+    }
+
+    return false;
+  }
+
+  async create(
+    createUserDto: CreateUserDto,
+  ): Promise<nano.DocumentInsertResponse> {
+    const user = await this.userRepository.insert({
+      fullname: createUserDto.fullname,
+      email: createUserDto.email,
+      username: createUserDto.username,
+      password: createUserDto.password,
+      role: createUserDto.role,
+      status: true,
+      picture: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      _id: `${new Date().getTime()}`,
+    });
+
+    return user;
   }
 
   findAll(): any {

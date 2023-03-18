@@ -16,7 +16,7 @@ export class User extends CouchDbEntity {
   @IsAlpha()
   @Length(3, 255)
   @ApiProperty()
-  fullName: string;
+  fullname: string;
 
   @IsAlpha()
   @Length(3, 50)
@@ -32,7 +32,8 @@ export class User extends CouchDbEntity {
 
   @IsString()
   @ApiProperty({ required: false })
-  picture?: string;
+  // picture with default value null, can be string
+  picture?: null | string;
 
   @IsNumber()
   @Min(1)
