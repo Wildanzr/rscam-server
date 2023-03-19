@@ -1,9 +1,18 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AdminsService } from 'src/admins/admins.service';
 import { RegisterAdminDto } from 'src/admins/dto/register-admin.dto';
 import { DoctorsService } from 'src/doctors/doctors.service';
 import { DictionaryMessage } from 'src/utils/config/dictionary-message.config';
 import { PayloadMessage } from 'src/utils/config/payload-message.config';
+import { AccessTokenGuard } from 'src/utils/guard/access-token.guard';
 import { UtilsService } from 'src/utils/utils.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -20,6 +29,7 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @HttpCode(HttpStatus.CREATED)
   async create(@Body() body: RegisterAdminDto) {
     // Destructure
     const { email, password, ...rest } = body;
@@ -45,6 +55,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   async login(@Body() body: LoginDto) {
     // Destructure
     const { username, password } = body;
@@ -53,7 +64,7 @@ export class AuthController {
     const isEmail = await this.utilsService.checkEmailOrUsername(username);
 
     // Find credential
-    const { password: hashed, _id } = isEmail
+    const { password: hashed, _id = 'empty' } = isEmail
       ? await this.adminService.findByEmail(username)
       : await this.doctorService.findByUsername(username);
 
@@ -63,10 +74,22 @@ export class AuthController {
     // Generate token
     const tokens = await this.authService.generateTokens({ _id, username });
 
+    // Save Refresh Token
+    await this.adminService.updateAdmin(_id, {
+      refreshToken: tokens.refreshToken,
+    });
+
     // Return response
     return this.payloadMessage.success(
       this.dictionaryMessage.successLogin,
       tokens,
     );
+  }
+
+  @Get('logout')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AccessTokenGuard)
+  async logout() {
+    return this.payloadMessage.success(this.dictionaryMessage.successLogout);
   }
 }

@@ -1,7 +1,6 @@
 import { InjectRepository, Repository } from '@blendedbot/nest-couchdb';
 import {
   BadRequestException,
-  Inject,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -17,11 +16,7 @@ export class AdminsService {
   constructor(
     @InjectRepository(Admins)
     private readonly adminRepo: Repository<Admins>,
-
-    @Inject(DictionaryMessage)
     private readonly dictionaryMessage: DictionaryMessage,
-
-    @Inject(UtilsService)
     private readonly utilsService: UtilsService,
   ) {}
 
@@ -79,20 +74,31 @@ export class AdminsService {
     return admin.docs[0];
   }
 
-  findAll() {
-    return `This action returns all admins`;
+  async findById(_id: string): Promise<Admins> {
+    const admin = await this.adminRepo.find({
+      selector: {
+        _id,
+      },
+      limit: 1,
+    });
+
+    if (admin.docs.length === 0) {
+      throw new UnauthorizedException(
+        this.dictionaryMessage.invalidCredentials,
+      );
+    }
+
+    return admin.docs[0];
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} admin`;
-  }
+  async updateAdmin(_id: string, payload: UpdateAdminDto): Promise<void> {
+    // Get admin by id
+    const admin = await this.findById(_id);
 
-  update(id: number, updateAdminDto: UpdateAdminDto) {
-    console.log('updateAdminDto', updateAdminDto);
-    return `This action updates a #${id} admin`;
-  }
+    // Update admin
+    const updated = { ...admin, ...payload, updatedAt: new Date() };
 
-  remove(id: number) {
-    return `This action removes a #${id} admin`;
+    // Save admin
+    await this.adminRepo.insert(updated);
   }
 }
