@@ -4,23 +4,25 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { DictionaryMessage } from 'src/utils/config/dictionary-message.config';
 import { UtilsService } from 'src/utils/utils.service';
 import { RegisterAdminDto } from './dto/register-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
-import { Admins } from './entities/admin.entity';
+import { Admins } from './entities/admins.entity';
 
 @Injectable()
 export class AdminsService {
-  @Inject(DictionaryMessage)
-  private readonly dictionaryMessage: DictionaryMessage;
-  @Inject(UtilsService)
-  private readonly utilsService: UtilsService;
-
   constructor(
     @InjectRepository(Admins)
     private readonly adminRepo: Repository<Admins>,
+
+    @Inject(DictionaryMessage)
+    private readonly dictionaryMessage: DictionaryMessage,
+
+    @Inject(UtilsService)
+    private readonly utilsService: UtilsService,
   ) {}
 
   async createAdmin(payload: RegisterAdminDto): Promise<string> {
@@ -58,6 +60,23 @@ export class AdminsService {
     if (admin.docs.length !== 0) {
       throw new BadRequestException(this.dictionaryMessage.emailAlreadyExists);
     }
+  }
+
+  async findByEmail(email: string): Promise<Admins> {
+    const admin = await this.adminRepo.find({
+      selector: {
+        email,
+      },
+      limit: 1,
+    });
+
+    if (admin.docs.length === 0) {
+      throw new UnauthorizedException(
+        this.dictionaryMessage.invalidCredentials,
+      );
+    }
+
+    return admin.docs[0];
   }
 
   findAll() {

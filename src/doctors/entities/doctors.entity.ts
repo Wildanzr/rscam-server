@@ -1,17 +1,16 @@
-import { Entity } from '@blendedbot/nest-couchdb';
+import { CouchDbEntity, Entity } from '@blendedbot/nest-couchdb';
 import {
   IsBoolean,
   IsDate,
-  IsEmail,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
   Length,
 } from 'class-validator';
 
-@Entity('admins')
-export class Admins {
+@Entity('doctors')
+export class Doctors extends CouchDbEntity {
   @IsOptional()
   @IsString()
   hospitalId: string | null;
@@ -22,8 +21,9 @@ export class Admins {
   fullname: string;
 
   @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  @IsString()
+  @Length(8, 50)
+  username: string;
 
   @IsNotEmpty()
   @IsString()
@@ -31,16 +31,12 @@ export class Admins {
 
   @IsNotEmpty()
   @IsString()
-  @Length(8, 15)
-  phone: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  subscription: number;
+  @IsUrl()
+  picture: string;
 
   @IsNotEmpty()
   @IsBoolean()
-  status: boolean;
+  isActive: boolean;
 
   @IsNotEmpty()
   @IsDate()

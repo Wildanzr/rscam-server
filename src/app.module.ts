@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
+import { DoctorsModule } from './doctors/doctors.module';
 
 const URL = process.env.COUCHDB_HOST || 'http://localhost';
 const PORT = process.env.COUCHDB_PORT || '5984';
@@ -29,6 +30,7 @@ const PASSWORD = process.env.COUCHDB_PASSWORD || 'secret';
     AdminsModule,
     AuthModule,
     UtilsModule,
+    DoctorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

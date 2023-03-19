@@ -8,4 +8,7 @@ export class DictionaryMessage {
 
   // Admin message
   successRegisterAdmin = 'Berhasil mendaftarkan admin.';
+
+  // Auth message
+  invalidCredentials = 'Username atau password tidak valid';
 }

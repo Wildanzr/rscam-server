@@ -24,4 +24,9 @@ export class UtilsService {
   ): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword);
   }
+
+  async checkEmailOrUsername(username: string): Promise<boolean> {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return regex.test(username);
+  }
 }

@@ -10,24 +10,29 @@ import {
 } from '@nestjs/common';
 import { AdminsService } from 'src/admins/admins.service';
 import { RegisterAdminDto } from 'src/admins/dto/register-admin.dto';
+import { DoctorsService } from 'src/doctors/doctors.service';
 import { DictionaryMessage } from 'src/utils/config/dictionary-message.config';
 import { PayloadMessage } from 'src/utils/config/payload-message.config';
 import { UtilsService } from 'src/utils/utils.service';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 
 @Controller('auth')
 export class AuthController {
-  @Inject(UtilsService)
-  private readonly utilsService: UtilsService;
-  @Inject(AdminsService)
-  private readonly adminService: AdminsService;
-  @Inject(PayloadMessage)
-  private readonly payloadMessage: PayloadMessage;
-  @Inject(DictionaryMessage)
-  private readonly dictionaryMessage: DictionaryMessage;
-
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(UtilsService)
+    private readonly utilsService: UtilsService,
+    @Inject(AdminsService)
+    private readonly adminService: AdminsService,
+    @Inject(DoctorsService)
+    private readonly doctorService: DoctorsService,
+    @Inject(PayloadMessage)
+    private readonly payloadMessage: PayloadMessage,
+    @Inject(DictionaryMessage)
+    private readonly dictionaryMessage: DictionaryMessage,
+  ) {}
 
   @Post('register')
   async create(@Body() body: RegisterAdminDto) {
@@ -47,10 +52,32 @@ export class AuthController {
       ...rest,
     });
 
+    // Return response
     return this.payloadMessage.success(
       this.dictionaryMessage.successRegisterAdmin,
       { adminId },
     );
+  }
+
+  @Post('login')
+  async login(@Body() body: LoginDto) {
+    // Destructure
+    const { username } = body;
+
+    // Check if body is username or email
+    const isEmail = await this.utilsService.checkEmailOrUsername(username);
+
+    // Find credential
+    const user = isEmail
+      ? await this.adminService.findByEmail(username)
+      : await this.doctorService.findByUsername(username);
+
+    console.log(user);
+
+    // Check password
+    // Generate token
+    // Return response
+    return 'success';
   }
 
   @Get()
