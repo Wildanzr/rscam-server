@@ -13,4 +13,6 @@ export class DictionaryMessage {
   invalidCredentials = 'Username atau password tidak valid';
   successLogin = 'Berhasil login';
   successLogout = 'Berhasil logout';
+  successRefreshToken = 'Berhasil mendapatkan token baru';
+  invalidToken = 'Otorisasi tidak valid';
 }

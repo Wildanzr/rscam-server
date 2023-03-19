@@ -5,6 +5,7 @@ import { DictionaryMessage } from 'src/utils/config/dictionary-message.config';
 import { TokensDto } from './dto/tokens.dto';
 import { JwtService } from '@nestjs/jwt';
 import { GenerateTokenDto } from './dto/generate-token.dto';
+import { JwtPayloadDto } from './dto/jwtpayload.dto';
 
 @Injectable()
 export class AuthService {
@@ -54,5 +55,9 @@ export class AuthService {
     }
 
     return id;
+  }
+
+  async getRequestPayload(payload: any): Promise<JwtPayloadDto> {
+    return { ...payload };
   }
 }

@@ -8,17 +8,13 @@ import { AuthModule } from './auth/auth.module';
 import { UtilsModule } from './utils/utils.module';
 import { DoctorsModule } from './doctors/doctors.module';
 
-const URL = process.env.COUCHDB_HOST || 'http://localhost';
-const PORT = process.env.COUCHDB_PORT || '5984';
-const USERNAME = process.env.COUCHDB_USER || 'admin';
-const PASSWORD = process.env.COUCHDB_PASSWORD || 'secret';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     CouchDbModule.forRoot({
-      url: `${URL}:${PORT}`,
-      username: USERNAME,
-      userpass: PASSWORD,
+      url: `${process.env.COUCHDB_URL || 'http://localhost:5984'}`,
+      username: process.env.COUCHDB_USER || 'admin',
+      userpass: process.env.COUCHDB_PASSWORD || 'secret',
       requestDefaults: {
         jar: true,
         forever: true,
