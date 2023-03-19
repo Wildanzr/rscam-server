@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AdminsService } from 'src/admins/admins.service';
 import { RegisterAdminDto } from 'src/admins/dto/register-admin.dto';
 import { DoctorsService } from 'src/doctors/doctors.service';
@@ -16,21 +7,15 @@ import { PayloadMessage } from 'src/utils/config/payload-message.config';
 import { UtilsService } from 'src/utils/utils.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    @Inject(UtilsService)
     private readonly utilsService: UtilsService,
-    @Inject(AdminsService)
     private readonly adminService: AdminsService,
-    @Inject(DoctorsService)
     private readonly doctorService: DoctorsService,
-    @Inject(PayloadMessage)
     private readonly payloadMessage: PayloadMessage,
-    @Inject(DictionaryMessage)
     private readonly dictionaryMessage: DictionaryMessage,
   ) {}
 
@@ -62,41 +47,26 @@ export class AuthController {
   @Post('login')
   async login(@Body() body: LoginDto) {
     // Destructure
-    const { username } = body;
+    const { username, password } = body;
 
     // Check if body is username or email
     const isEmail = await this.utilsService.checkEmailOrUsername(username);
 
     // Find credential
-    const user = isEmail
+    const { password: hashed, _id } = isEmail
       ? await this.adminService.findByEmail(username)
       : await this.doctorService.findByUsername(username);
 
-    console.log(user);
-
     // Check password
+    await this.utilsService.comparePassword(password, hashed);
+
     // Generate token
+    const tokens = await this.authService.generateTokens({ _id, username });
+
     // Return response
-    return 'success';
-  }
-
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+    return this.payloadMessage.success(
+      this.dictionaryMessage.successLogin,
+      tokens,
+    );
   }
 }

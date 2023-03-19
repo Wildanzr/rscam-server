@@ -11,4 +11,5 @@ export class DictionaryMessage {
 
   // Auth message
   invalidCredentials = 'Username atau password tidak valid';
+  successLogin = 'Berhasil login';
 }

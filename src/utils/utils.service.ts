@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { customAlphabet } from 'nanoid';
 import * as bcrypt from 'bcrypt';
+import { DictionaryMessage } from './config/dictionary-message.config';
 
 @Injectable()
 export class UtilsService {
@@ -9,6 +10,11 @@ export class UtilsService {
     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
     10,
   );
+
+  constructor(
+    @Inject(DictionaryMessage)
+    private readonly dictionaryMessage: DictionaryMessage,
+  ) {}
 
   async generateId(prefix?: string): Promise<string> {
     return prefix ? `${prefix}-${this.nanoid()}` : this.nanoid();
@@ -21,8 +27,14 @@ export class UtilsService {
   async comparePassword(
     password: string,
     hashedPassword: string,
-  ): Promise<boolean> {
-    return await bcrypt.compare(password, hashedPassword);
+  ): Promise<void> {
+    const isMatch = await bcrypt.compare(password, hashedPassword);
+
+    if (!isMatch) {
+      throw new UnauthorizedException(
+        this.dictionaryMessage.invalidCredentials,
+      );
+    }
   }
 
   async checkEmailOrUsername(username: string): Promise<boolean> {
