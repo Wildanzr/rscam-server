@@ -18,7 +18,9 @@ export class DoctorsService {
     private readonly doctorRepo: Repository<Doctors>,
     private readonly dictionaryMessage: DictionaryMessage,
     private readonly utilsService: UtilsService,
-  ) {}
+  ) {
+    this.utilsService.createIndex('doctors', ['fullname', 'username', '_id']);
+  }
 
   async findByUsername(username: string): Promise<Doctors> {
     const doctor = await this.doctorRepo.find({
@@ -108,7 +110,8 @@ export class DoctorsService {
     await this.doctorRepo.insert(updated);
   }
 
-  async getDoctors(payload: GetDoctorsDto) {
+  // Here is trouble
+  async getDoctors(payload: GetDoctorsDto): Promise<any> {
     // Destructure
     const { limit, page } = payload;
 
@@ -116,13 +119,29 @@ export class DoctorsService {
     const doctors = await this.doctorRepo.find({
       limit,
       skip: limit * (page - 1),
-      selector: {},
+      selector: {
+        fullname: {
+          $regex: `(?i)${payload.search || ''}`,
+        },
+      },
+      fields: ['_id', 'username', 'fullname', 'picture'],
+      sort: [{ fullname: 'asc' }],
     });
 
     // Get total
     const total = await this.doctorRepo.info();
 
-    console.log(doctors);
-    console.log(total);
+    // Meta data
+    const meta = {
+      limit,
+      page,
+      totalData: total.doc_count,
+      totalPage: Math.ceil(total.doc_count / limit),
+    };
+
+    return {
+      doctors,
+      meta,
+    };
   }
 }

@@ -18,7 +18,9 @@ export class AdminsService {
     private readonly adminRepo: Repository<Admins>,
     private readonly dictionaryMessage: DictionaryMessage,
     private readonly utilsService: UtilsService,
-  ) {}
+  ) {
+    this.utilsService.createIndex('admins', ['fullname', 'email', '_id']);
+  }
 
   async createAdmin(payload: RegisterAdminDto): Promise<string> {
     // Generate id

@@ -6,6 +6,7 @@ import { TokensDto } from './dto/tokens.dto';
 import { JwtService } from '@nestjs/jwt';
 import { GenerateTokenDto } from './dto/generate-token.dto';
 import { JwtPayloadDto } from './dto/jwtpayload.dto';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
     private readonly adminService: AdminsService,
     private readonly jwtService: JwtService,
     private readonly dictionaryMessage: DictionaryMessage,
+    private readonly utilService: UtilsService,
   ) {}
 
   async generateTokens(payload: GenerateTokenDto): Promise<TokensDto> {

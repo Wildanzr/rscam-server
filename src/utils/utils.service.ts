@@ -11,6 +11,7 @@ import {
   hairColor,
   mouth,
 } from './config/randomise.config';
+import * as nano from 'nano';
 
 @Injectable()
 export class UtilsService {
@@ -23,6 +24,38 @@ export class UtilsService {
     @Inject(DictionaryMessage)
     private readonly dictionaryMessage: DictionaryMessage,
   ) {}
+
+  async createIndex(databse: string, fields: string[]) {
+    const URL = process.env.COUCHDB_URL || 'http://localhost:5984';
+    const USER = process.env.COUCHDB_USER || 'admin';
+    const PWD = process.env.COUCHDB_PASSWORD || 'secret';
+
+    const db = nano({
+      url: URL,
+      requestDefaults: {
+        auth: {
+          username: USER,
+          password: PWD,
+        },
+        timeout: 10000,
+        jar: true,
+      },
+    });
+
+    // Create index
+    const doctors = db.use(databse);
+    await doctors
+      .createIndex({
+        index: {
+          fields,
+        },
+        name: `${databse}_index`,
+        type: 'json',
+      })
+      .then((res) => {
+        console.log(`${res.name} is ${res.result}`);
+      });
+  }
 
   async generateId(prefix?: string): Promise<string> {
     return prefix ? `${prefix}-${this.nanoid()}` : this.nanoid();

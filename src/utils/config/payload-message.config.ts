@@ -5,8 +5,8 @@ export class PayloadMessage {
   success(message: string, data?: any, meta?: any): any {
     if (meta) {
       return {
-        meta,
         message,
+        meta,
         data,
       };
     } else if (data) {
@@ -24,8 +24,8 @@ export class PayloadMessage {
   fail(message: string, data?: any, meta?: any): any {
     if (meta) {
       return {
-        meta,
         message,
+        meta,
         data,
       };
     } else if (data) {

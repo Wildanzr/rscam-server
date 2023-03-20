@@ -12,6 +12,8 @@ export class DictionaryMessage {
   // Admin message
   successRegisterAdmin = 'Berhasil mendaftarkan admin.';
   successAddDoctor = 'Berhasil menambahkan dokter.';
+  successGetDoctors = 'Berhasil mengambil beberapa data dokter.';
+  successGetDoctor = 'Berhasil mendapatkan data dokter.';
 
   // Auth message
   invalidCredentials = 'Username atau password tidak valid';

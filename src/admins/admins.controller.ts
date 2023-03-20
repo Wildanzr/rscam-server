@@ -30,8 +30,15 @@ export class AdminsController {
 
   @Get('doctors')
   async getAllDoctors(@Query() query: GetDoctorsDto) {
-    await this.doctorService.getDoctors(query);
-    return 'Get all doctors';
+    // Get doctors
+    const { doctors, meta } = await this.doctorService.getDoctors(query);
+
+    // Return response
+    return this.payloadMessage.success(
+      this.dictionaryMessage.successGetDoctors,
+      doctors,
+      meta,
+    );
   }
 
   @Post('doctors')
