@@ -22,17 +22,18 @@ export class Doctors extends CouchDbEntity {
 
   @IsNotEmpty()
   @IsString()
-  @Length(8, 50)
+  @Length(3, 50)
   username: string;
 
   @IsNotEmpty()
   @IsString()
+  @Length(8, 50)
   password: string;
 
   @IsNotEmpty()
   @IsString()
   @IsUrl()
-  picture: string;
+  picture: string | null;
 
   @IsNotEmpty()
   @IsBoolean()

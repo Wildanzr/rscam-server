@@ -21,10 +21,13 @@ export class AdminsService {
   ) {}
 
   async createAdmin(payload: RegisterAdminDto): Promise<string> {
+    // Generate id
     const id = `${new Date().getTime()}-${await this.utilsService.generateId(
       'adm',
     )}`;
-    const user = await this.adminRepo.insert({
+
+    // Insert admin
+    const admin = await this.adminRepo.insert({
       ...payload,
       _id: id,
       hospitalId: null,
@@ -35,13 +38,14 @@ export class AdminsService {
       refreshToken: null,
     });
 
-    if (!user.id) {
+    // Check success
+    if (!admin.id) {
       throw new InternalServerErrorException(
         this.dictionaryMessage.serverCrash,
       );
     }
 
-    return user.id;
+    return admin.id;
   }
 
   async checkEmailIsUnique(email: string): Promise<void> {
@@ -91,12 +95,13 @@ export class AdminsService {
     return admin.docs[0];
   }
 
-  async updateAdmin(_id: string, payload: UpdateAdminDto): Promise<void> {
+  async update(_id: string, payload: UpdateAdminDto): Promise<void> {
     // Get admin by id
     const admin = await this.findById(_id);
+    const updateDate = payload.refreshToken ? {} : { updatedAt: new Date() };
 
     // Update admin
-    const updated = { ...admin, ...payload, updatedAt: new Date() };
+    const updated = { ...admin, ...updateDate, ...payload };
 
     // Save admin
     await this.adminRepo.insert(updated);

@@ -1,8 +1,13 @@
 import { InjectRepository, Repository } from '@blendedbot/nest-couchdb';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { GetDoctorsDto } from 'src/doctors/dto/get-doctors.dto';
 import { DictionaryMessage } from 'src/utils/config/dictionary-message.config';
 import { UtilsService } from 'src/utils/utils.service';
+import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { Doctors } from './entities/doctors.entity';
 
@@ -11,11 +16,7 @@ export class DoctorsService {
   constructor(
     @InjectRepository(Doctors)
     private readonly doctorRepo: Repository<Doctors>,
-
-    @Inject(DictionaryMessage)
     private readonly dictionaryMessage: DictionaryMessage,
-
-    @Inject(UtilsService)
     private readonly utilsService: UtilsService,
   ) {}
 
@@ -36,6 +37,21 @@ export class DoctorsService {
     return doctor.docs[0];
   }
 
+  async checkUsernameIsUnique(username: string): Promise<boolean> {
+    const doctor = await this.doctorRepo.find({
+      selector: {
+        username,
+      },
+      limit: 1,
+    });
+
+    if (doctor.docs.length === 0) {
+      return true;
+    }
+
+    return false;
+  }
+
   async findById(_id: string): Promise<Doctors> {
     const doctor = await this.doctorRepo.find({
       selector: {
@@ -53,7 +69,35 @@ export class DoctorsService {
     return doctor.docs[0];
   }
 
-  async updateDoctor(_id: string, payload: UpdateDoctorDto): Promise<void> {
+  async create(payload: CreateDoctorDto): Promise<string> {
+    // Generate id
+    const id = `${new Date().getTime()}-${await this.utilsService.generateId(
+      'adm',
+    )}`;
+
+    // Insert doctor
+    const doctor = await this.doctorRepo.insert({
+      ...payload,
+      _id: id,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: null,
+      deletedAt: null,
+      refreshToken: null,
+      picture: this.utilsService.generateRandomUserPicture(payload.username),
+    });
+
+    // Check success
+    if (!doctor.id) {
+      throw new InternalServerErrorException(
+        this.dictionaryMessage.serverCrash,
+      );
+    }
+
+    return doctor.id;
+  }
+
+  async update(_id: string, payload: UpdateDoctorDto): Promise<void> {
     // Get doctor by id
     const doctor = await this.findById(_id);
 

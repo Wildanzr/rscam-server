@@ -37,7 +37,7 @@ export class AuthController {
 
   @Post('register/for-admin')
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() body: RegisterAdminDto) {
+  async register(@Body() body: RegisterAdminDto) {
     // Destructure
     const { email, password, ...rest } = body;
 
@@ -82,7 +82,7 @@ export class AuthController {
     const tokens = await this.authService.generateTokens({ _id, username });
 
     // Save Refresh Token
-    await this.adminService.updateAdmin(_id, {
+    await this.adminService.update(_id, {
       refreshToken: tokens.refreshToken,
     });
 
@@ -107,9 +107,9 @@ export class AuthController {
 
     // Remove refresh token
     if (isEmail) {
-      await this.adminService.updateAdmin(sub, { refreshToken: null });
+      await this.adminService.update(sub, { refreshToken: null });
     } else {
-      await this.doctorService.updateDoctor(sub, { refreshToken: null });
+      await this.doctorService.update(sub, { refreshToken: null });
     }
 
     return this.payloadMessage.success(this.dictionaryMessage.successLogout);
@@ -143,11 +143,11 @@ export class AuthController {
 
     // Save Refresh Token
     if (isEmail) {
-      await this.adminService.updateAdmin(_id, {
+      await this.adminService.update(_id, {
         refreshToken: tokens.refreshToken,
       });
     } else {
-      await this.doctorService.updateDoctor(_id, {
+      await this.doctorService.update(_id, {
         refreshToken: tokens.refreshToken,
       });
     }

@@ -4,10 +4,14 @@ import { Injectable } from '@nestjs/common';
 export class DictionaryMessage {
   // Error message
   serverCrash = 'Ups, ada kendala. Silahkan coba lagi nanti.';
-  emailAlreadyExists = 'Maaf, email sudah terdaftar.';
+
+  // Duplicate message
+  emailAlreadyExists = 'Maaf, email telah terdaftar.';
+  usernameAlreadyExists = 'Maaf, username telah digunakan.';
 
   // Admin message
   successRegisterAdmin = 'Berhasil mendaftarkan admin.';
+  successAddDoctor = 'Berhasil menambahkan dokter.';
 
   // Auth message
   invalidCredentials = 'Username atau password tidak valid';
