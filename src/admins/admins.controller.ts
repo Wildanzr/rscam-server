@@ -1,13 +1,35 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Put, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AdminsService } from './admins.service';
-import { CreateAdminDto } from './dto/create-admin.dto';
+import { GetDoctorsDto } from '../doctors/dto/get-doctors.dto';
+import { DoctorsService } from 'src/doctors/doctors.service';
 
-@Controller('admins')
+@ApiTags('Management for Admin')
+@Controller('api/v1/admin/management')
 export class AdminsController {
-  constructor(private readonly adminsService: AdminsService) {}
+  constructor(
+    private readonly adminsService: AdminsService,
+    private readonly doctorService: DoctorsService,
+  ) {}
 
-  @Post()
-  create(@Body() createAdminDto: CreateAdminDto) {
-    return this.adminsService.createAdmin(createAdminDto);
+  @Get('doctors')
+  async getAllDoctors(@Query() query: GetDoctorsDto) {
+    await this.doctorService.getDoctors(query);
+    return 'Get all doctors';
+  }
+
+  @Post('doctors')
+  async addDoctor() {
+    return 'Add doctor';
+  }
+
+  @Put('doctors')
+  async editDoctor() {
+    return 'Edit doctor';
+  }
+
+  @Delete('doctors')
+  async deleteDoctor() {
+    return 'Delete doctor';
   }
 }

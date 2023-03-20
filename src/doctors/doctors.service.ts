@@ -1,5 +1,6 @@
 import { InjectRepository, Repository } from '@blendedbot/nest-couchdb';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { GetDoctorsDto } from 'src/doctors/dto/get-doctors.dto';
 import { DictionaryMessage } from 'src/utils/config/dictionary-message.config';
 import { UtilsService } from 'src/utils/utils.service';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
@@ -61,5 +62,23 @@ export class DoctorsService {
 
     // Save doctor
     await this.doctorRepo.insert(updated);
+  }
+
+  async getDoctors(payload: GetDoctorsDto) {
+    // Destructure
+    const { limit, page } = payload;
+
+    // Get doctors
+    const doctors = await this.doctorRepo.find({
+      limit,
+      skip: limit * (page - 1),
+      selector: {},
+    });
+
+    // Get total
+    const total = await this.doctorRepo.info();
+
+    console.log(doctors);
+    console.log(total);
   }
 }

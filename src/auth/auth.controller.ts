@@ -9,6 +9,7 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AdminsService } from 'src/admins/admins.service';
@@ -22,6 +23,7 @@ import { UtilsService } from 'src/utils/utils.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
+@ApiTags('Authentication and Authorization')
 @Controller('api/v1/auth')
 export class AuthController {
   constructor(

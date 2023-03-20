@@ -9,14 +9,19 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Setting up validation pipe
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   // Setting up swagger
   const options = new DocumentBuilder()
     .setTitle('RS Camera API Documentation')
-    .setDescription('The RS Camera API description')
+    .setDescription('Minimal API Documentation for RS Camera Project')
     .setVersion('1.0')
-    .addTag('rs-camera')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('swagger', app, document);
